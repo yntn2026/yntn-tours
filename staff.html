@@ -123,9 +123,12 @@
   var API = 'https://script.google.com/macros/s/AKfycbyb-0i2ppm1QyaLaUFAIIGPyI8ZWk9TnDvsFM1D3L7wDPAoq3PUYTyq_gGTOEZyvDGFGQ/exec';
   // ▼ MATENE の来場者ページ
   var MATENE = 'https://matene.jp/apps/user/?event_id=Wyfc20E62l1tKWIRpZ4I';
-  function callApi(body) {
-    return fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow' })
-      .then(function (res) { return res.json(); });
+  function callApi(body, timeoutMs) {
+    var ctl = ('AbortController' in window) ? new AbortController() : null;
+    var t = setTimeout(function () { if (ctl) ctl.abort(); }, timeoutMs || 40000);
+    return fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow', signal: ctl ? ctl.signal : undefined })
+      .then(function (res) { return res.json(); })
+      .then(function (r) { clearTimeout(t); return r; }, function (e) { clearTimeout(t); throw e; });
   }
 </script>
 <script>
@@ -197,18 +200,23 @@
   function poll() {
     if (inflight) return;
     inflight = true;
-    var watchdog = setTimeout(function () { inflight = false; showWarn('サーバーから応答がありません（10秒）'); }, 10000);
-    fetch(API + '?mode=json&key=' + encodeURIComponent(KEY) + '&t=' + Date.now(), { credentials: 'omit', cache: 'no-store', redirect: 'follow' })
+    var watchdog = setTimeout(function () { showWarn('サーバーの応答が遅くなっています。そのまま待っています…'); }, 12000);
+    var ctl = ('AbortController' in window) ? new AbortController() : null;
+    var hardStop = setTimeout(function () { if (ctl) ctl.abort(); }, 40000);
+    fetch(API + '?mode=json&key=' + encodeURIComponent(KEY) + '&t=' + Date.now(),
+          { credentials: 'omit', cache: 'no-store', redirect: 'follow', signal: ctl ? ctl.signal : undefined })
       .then(function (res) { return res.json(); })
       .then(function (r) {
-        clearTimeout(watchdog); inflight = false;
         if (!r) { showWarn('サーバーから空の応答が返りました'); return; }
         if (r.error) { showWarn('取得に失敗: ' + r.error + '（URLの末尾に ?key=あいことば が要ります）'); return; }
         warn.style.display = 'none'; render(r);
       })
       .catch(function (e) {
-        clearTimeout(watchdog); inflight = false;
-        showWarn('取得に失敗: ' + (e && e.message ? e.message : e));
+        showWarn('取得に失敗: ' + (e && e.name === 'AbortError' ? '40秒たっても応答がありません' : (e && e.message ? e.message : e)));
+      })
+      .then(function () {
+        clearTimeout(watchdog); clearTimeout(hardStop); inflight = false;
+        timer = setTimeout(poll, POLL_MS);   // 前の応答が返ってから、次を予約する
       });
   }
   function act(fn, id) {
@@ -283,7 +291,6 @@
 
   function start() {
     poll();
-    timer = setInterval(poll, POLL_MS);
   }
   if (document.readyState === 'complete') start();
   else window.addEventListener('load', start);
