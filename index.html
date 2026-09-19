@@ -2,6 +2,7 @@
 <html lang="ja">
 <head>
 <meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover">
 <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
 <title>YNTN TOURS 連絡</title>
 <style>
@@ -160,9 +161,12 @@
   var API = 'https://script.google.com/macros/s/AKfycbyb-0i2ppm1QyaLaUFAIIGPyI8ZWk9TnDvsFM1D3L7wDPAoq3PUYTyq_gGTOEZyvDGFGQ/exec';
   // ▼ MATENE の来場者ページ
   var MATENE = 'https://matene.jp/apps/user/?event_id=Wyfc20E62l1tKWIRpZ4I';
-  function callApi(body) {
-    return fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow' })
-      .then(function (res) { return res.json(); });
+  function callApi(body, timeoutMs) {
+    var ctl = ('AbortController' in window) ? new AbortController() : null;
+    var t = setTimeout(function () { if (ctl) ctl.abort(); }, timeoutMs || 40000);
+    return fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow', signal: ctl ? ctl.signal : undefined })
+      .then(function (res) { return res.json(); })
+      .then(function (r) { clearTimeout(t); return r; }, function (e) { clearTimeout(t); throw e; });
   }
 </script>
 <script>
@@ -197,7 +201,7 @@
         return;
       }
       setBusy(true); show(sending);
-      callApi({ action: 'submit', number: n, status: b.getAttribute('data-key') })
+      callApi({ action: 'submit', number: n, status: b.getAttribute('data-key') }, 40000)
         .then(function (r) {
           if (!r || r.error) { fail({ message: r && r.error }); return; }
           document.getElementById('doneNum').textContent = r.number + ' 番';
