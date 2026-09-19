@@ -149,7 +149,8 @@
 </script>
 <script>
 (function () {
-  var POLL_MS = 4000;
+  var POLL_MS = 5000;
+  var failStreak = 0;
   var KEY = ''; try { KEY = new URLSearchParams(location.search).get('key') || ''; } catch (e) {}
   var KEYS = { 'キャンセル（30分以上）': 'cancel', '遅れます（10分以内）': 'late10', 'かなり遅れます（30分以内）': 'late30' };
   var seen = null;              // 既に表示した id の集合（初回は null）
@@ -216,19 +217,20 @@
   function poll() {
     if (inflight) return;
     inflight = true;
-    var watchdog = setTimeout(function () { showWarn('サーバーの応答が遅くなっています。そのまま待っています…'); }, 12000);
+    var watchdog = setTimeout(function () { if (failStreak >= 1) showWarn('サーバーの応答が遅くなっています。そのまま待っています…'); }, 15000);
     var ctl = ('AbortController' in window) ? new AbortController() : null;
-    var hardStop = setTimeout(function () { if (ctl) ctl.abort(); }, 40000);
+    var hardStop = setTimeout(function () { if (ctl) ctl.abort(); }, 60000);
     fetch(API + '?mode=json&key=' + encodeURIComponent(KEY) + '&t=' + Date.now(),
           { credentials: 'omit', cache: 'no-store', redirect: 'follow', signal: ctl ? ctl.signal : undefined })
       .then(function (res) { return res.json(); })
       .then(function (r) {
         if (!r) { showWarn('サーバーから空の応答が返りました'); return; }
         if (r.error) { showWarn('取得に失敗: ' + r.error + '（URLの末尾に ?key=あいことば が要ります）'); return; }
-        warn.style.display = 'none'; render(r);
+        failStreak = 0; warn.style.display = 'none'; render(r);
       })
       .catch(function (e) {
-        showWarn('取得に失敗: ' + (e && e.name === 'AbortError' ? '40秒たっても応答がありません' : (e && e.message ? e.message : e)));
+        failStreak++;
+        if (failStreak >= 2) showWarn('サーバーの応答が届きません（' + failStreak + '回続けて）。取り直しています…');
       })
       .then(function () {
         clearTimeout(watchdog); clearTimeout(hardStop); inflight = false;
