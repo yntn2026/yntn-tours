@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+<title>YNTN TOURS 連絡</title>
+<style>
+  :root {
+    --navy: #060c22; --navy2: #0e1a40; --navy3: #172a66;
+    --gold: #d9b45a; --gold2: #f3d27a; --gold-dim: rgba(217,180,90,.38);
+    --white: #f6f8ff; --muted: #a9b4d3;
+    --ice: #7cc4ff; --cancel: #ff5c7a; --late10: #7cc4ff; --late30: #f3d27a; --green: #4cd28a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; color: var(--white);
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background:
+      radial-gradient(ellipse 70% 45% at 12% -5%, #24408f 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 95% 105%, #3a2378 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 70% 40%, rgba(124,196,255,.10) 0%, transparent 70%),
+      var(--navy); }
+  /* 星空 2層：奥（細かい・静止）と手前（大きめ・ゆっくり流れて瞬く） */
+  body::before, body::after { content: ""; position: fixed; inset: -10%; pointer-events: none; z-index: 0; }
+  body::before { opacity: .75;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 28% 62%, #fff 50%, transparent 52%),
+      radial-gradient(1.5px 1.5px at 41% 9%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 55% 44%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 67% 78%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 78% 22%, #fff 50%, transparent 52%),
+      radial-gradient(1.5px 1.5px at 88% 58%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 8% 86%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 35% 35%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 62% 6%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 93% 88%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 48% 92%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 20% 48%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 74% 40%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 5% 30%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 52% 70%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 83% 8%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 30% 95%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 97% 35%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 15% 70%, #fff 50%, transparent 52%); }
+  body::after { opacity: .9; animation: drift 90s linear infinite, twinkle 4s ease-in-out infinite;
+    background-image:
+      radial-gradient(2.5px 2.5px at 18% 24%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 72% 14%, #f3d27a 40%, transparent 60%),
+      radial-gradient(2.5px 2.5px at 40% 76%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 86% 66%, #7cc4ff 40%, transparent 60%),
+      radial-gradient(3px 3px at 58% 50%, #fff 35%, transparent 60%),
+      radial-gradient(2px 2px at 10% 58%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 92% 30%, #fff 40%, transparent 60%),
+      radial-gradient(2.5px 2.5px at 30% 6%, #f3d27a 40%, transparent 60%),
+      radial-gradient(2px 2px at 66% 90%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 48% 32%, #7cc4ff 40%, transparent 60%); }
+  @keyframes drift { from { transform: translate3d(0,0,0); } to { transform: translate3d(-3%, 2%, 0); } }
+  @keyframes twinkle { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+  .brand { font-family: "Orbitron", -apple-system, sans-serif; font-weight: 800; letter-spacing: .14em;
+    color: var(--gold2); text-shadow: 0 0 18px rgba(243,210,122,.35); }
+  .brand .mark { color: var(--gold); margin-right: 6px; }
+  .rule { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .7; }
+
+  .wrap { position: relative; z-index: 1; max-width: 480px; margin: 0 auto; padding: 26px 16px 44px; }
+  .brand { font-size: 22px; }
+  .place { display: flex; gap: 10px; align-items: baseline; color: var(--muted); font-size: 12px; letter-spacing: .16em; margin: 6px 0 14px; }
+  .place .cls { color: var(--gold2); font-family: "Orbitron", sans-serif; font-weight: 600; letter-spacing: .1em; font-size: 13px; }
+  .sub { color: var(--muted); font-size: 14px; margin: 14px 0 18px; line-height: 1.7; }
+  .card { position: relative; overflow: hidden;
+    background: linear-gradient(180deg, rgba(23,42,102,.85), rgba(14,26,64,.95));
+    border: 1px solid var(--gold-dim); border-radius: 20px; padding: 20px 16px;
+    box-shadow: 0 24px 60px rgba(0,0,0,.5), inset 0 1px 0 rgba(255,255,255,.07); }
+  .card::before { content: ""; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--gold2), transparent); opacity: .8; }
+  .card .tag { position: absolute; top: 12px; right: 14px; font-family: "Orbitron", sans-serif; font-size: 9px;
+    letter-spacing: .28em; color: var(--gold); opacity: .8; }
+  label { display: block; font-weight: 700; font-size: 13px; letter-spacing: .12em; color: var(--gold2); margin: 4px 0 8px; }
+  input[type=number] {
+    width: 100%; font-size: 46px; font-weight: 800; text-align: center; color: var(--white);
+    padding: 10px; background: rgba(6,12,34,.75); border: 1.5px solid var(--gold-dim); border-radius: 14px; outline: none;
+    -moz-appearance: textfield; font-family: "Orbitron", -apple-system, sans-serif; letter-spacing: .08em;
+    box-shadow: inset 0 0 24px rgba(124,196,255,.06);
+  }
+  input::placeholder { color: rgba(169,180,211,.4); font-family: -apple-system, "Hiragino Sans", sans-serif; font-weight: 600; letter-spacing: 0; }
+  input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
+  input:focus { border-color: var(--gold2); box-shadow: 0 0 0 4px rgba(243,210,122,.15), inset 0 0 24px rgba(124,196,255,.06); }
+  .hint { color: var(--muted); font-size: 12px; margin: 8px 0 18px; }
+  .lead { color: var(--muted); font-size: 12px; letter-spacing: .12em; margin: 0 0 4px; }
+  .btn {
+    display: flex; align-items: center; gap: 14px; width: 100%; margin-top: 10px; padding: 14px 14px 14px 16px;
+    color: var(--white); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent;
+    background: linear-gradient(135deg, rgba(28,48,118,.95), rgba(12,22,58,.98));
+    border: 1px solid var(--gold-dim); border-left: 6px solid var(--acc); border-radius: 14px;
+    box-shadow: 0 12px 28px rgba(0,0,0,.4), inset 0 1px 0 rgba(255,255,255,.08), inset 6px 0 24px -12px var(--acc);
+  }
+  .btn .ic { font-size: 26px; width: 34px; text-align: center; filter: drop-shadow(0 0 8px var(--acc)); }
+  .btn .tx { flex: 1; }
+  .btn b { display: block; font-size: 19px; font-weight: 800; letter-spacing: .02em; }
+  .btn small { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; }
+  .btn .chev { color: var(--gold); font-size: 22px; opacity: .8; }
+  .btn:active { transform: translateY(1px); filter: brightness(1.15); }
+  .btn:disabled { opacity: .45; }
+  .late10 { --acc: var(--late10); }
+  .late30 { --acc: var(--late30); }
+  .cancel { --acc: var(--cancel); }
+  .done { text-align: center; padding: 26px 12px 22px; }
+  .done .top { color: var(--gold2); letter-spacing: .22em; font-size: 12px; }
+  .done .big { font-family: "Orbitron", -apple-system, sans-serif; font-size: 58px; font-weight: 800; line-height: 1.1;
+    margin: 12px 0 4px; color: var(--white); text-shadow: 0 0 26px rgba(124,196,255,.45); }
+  .done .st { font-size: 21px; font-weight: 800; margin-bottom: 14px; color: var(--gold2); }
+  .done p { color: var(--muted); line-height: 1.7; margin: 0; font-size: 14px; }
+  .err { color: #ff8aa0; font-weight: 700; margin-top: 12px; display: none; }
+  .sending { text-align: center; color: var(--muted); padding: 26px; letter-spacing: .1em; }
+  .matene { display: block; margin: 20px auto 0; max-width: 320px; color: #1a1400;
+    background: linear-gradient(135deg, var(--gold2), var(--gold)); text-decoration: none;
+    border-radius: 14px; padding: 14px 16px; font-size: 16px; font-weight: 800;
+    box-shadow: 0 12px 28px rgba(0,0,0,.4), 0 0 24px rgba(243,210,122,.25); }
+  .again { margin-top: 14px; background: none; border: 1px solid var(--gold-dim); color: var(--muted);
+    border-radius: 10px; padding: 10px 16px; font-size: 13px; letter-spacing: .06em; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><span class="mark">✦</span>YNTN TOURS</div>
+  <div class="place"><span class="cls">3-A.B</span><span>FLIGHT GATE ／ 本館4階</span></div>
+  <div class="rule"></div>
+  <p class="sub">フライトに行けない・遅れるときは、ここから教えてください。<br>
+  順番の確保はできません。来た時点で次の便にご案内します。</p>
+
+  <div class="card" id="form">
+    <div class="tag">BOARDING</div>
+    <label for="num">あなたの搭乗番号</label>
+    <input id="num" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="2000"
+           placeholder="例：15" value="">
+    <div class="hint">整理券（搭乗券）に書いてある数字です</div>
+    <div class="lead">状況を選んでください</div>
+
+    <button class="btn late10" data-key="late10"><span class="ic">⏱</span><span class="tx"><b>遅れます（10分以内）</b><small>すぐ向かいます</small></span><span class="chev">›</span></button>
+    <button class="btn late30" data-key="late30"><span class="ic">⌛</span><span class="tx"><b>かなり遅れます（30分以内）</b><small>10〜30分ほどかかります</small></span><span class="chev">›</span></button>
+    <button class="btn cancel" data-key="cancel"><span class="ic">❌</span><span class="tx"><b>キャンセル（30分以上）</b><small>30分以上遅れる・来られない。順番を取り消します</small></span><span class="chev">›</span></button>
+
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="card sending" id="sending" style="display:none">送信しています…</div>
+
+  <div class="card done" id="done" style="display:none">
+    <div class="top">✦ ご連絡を受け付けました ✦</div>
+    <div class="big" id="doneNum"></div>
+    <div class="st" id="doneStatus"></div>
+    <p>フライトゲートに伝わりました。<br>順番の確保はできません。来た時点で次の便にご案内します。</p>
+    <a class="matene" id="matene" href="#" target="_blank" rel="noopener">🚀 今の呼出番号を見る（MATENE）</a>
+    <button class="again" id="again">もう一度送る</button>
+  </div>
+</div>
+
+<script>
+  // ▼ Apps Script の URL（「デプロイを管理」に出る exec のURL）。作り直したらここを差し替える
+  var API = 'https://script.google.com/macros/s/AKfycbyb-0i2ppm1QyaLaUFAIIGPyI8ZWk9TnDvsFM1D3L7wDPAoq3PUYTyq_gGTOEZyvDGFGQ/exec';
+  // ▼ MATENE の来場者ページ
+  var MATENE = 'https://matene.jp/apps/user/?event_id=Wyfc20E62l1tKWIRpZ4I';
+  function callApi(body) {
+    return fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow' })
+      .then(function (res) { return res.json(); });
+  }
+</script>
+<script>
+(function () {
+  var form = document.getElementById('form');
+  var sending = document.getElementById('sending');
+  var done = document.getElementById('done');
+  var err = document.getElementById('err');
+  var num = document.getElementById('num');
+  var buttons = form.querySelectorAll('.btn');
+  try { var qn = new URLSearchParams(location.search).get('n'); if (qn && /^\d{1,4}$/.test(qn)) num.value = qn; } catch (e) {}
+
+  function show(el) {
+    [form, sending, done].forEach(function (x) { x.style.display = 'none'; });
+    el.style.display = '';
+  }
+  function setBusy(b) { buttons.forEach(function (x) { x.disabled = b; }); }
+  function fail(e) {
+    show(form); setBusy(false);
+    err.textContent = (e && e.message) ? e.message : '送信できませんでした。もう一度押してください。';
+    err.style.display = 'block';
+  }
+
+  buttons.forEach(function (b) {
+    b.addEventListener('click', function () {
+      err.style.display = 'none';
+      var n = parseInt(num.value, 10);
+      if (!(n >= 1 && n <= 2000)) {
+        err.textContent = '整理券の番号を入れてください';
+        err.style.display = 'block';
+        num.focus();
+        return;
+      }
+      setBusy(true); show(sending);
+      callApi({ action: 'submit', number: n, status: b.getAttribute('data-key') })
+        .then(function (r) {
+          if (!r || r.error) { fail({ message: r && r.error }); return; }
+          document.getElementById('doneNum').textContent = r.number + ' 番';
+          document.getElementById('doneStatus').textContent = r.status;
+          document.getElementById('matene').href = MATENE + '&number=' + r.number;
+          show(done);
+        })
+        .catch(function () { fail(null); });
+    });
+  });
+
+  document.getElementById('again').addEventListener('click', function () {
+    setBusy(false); show(form);
+  });
+})();
+</script>
+</body>
+</html>

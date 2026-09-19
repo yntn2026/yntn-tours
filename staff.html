@@ -1,0 +1,293 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@600;800&display=swap" rel="stylesheet">
+<title>YNTN TOURS 運営</title>
+<style>
+  :root {
+    --navy: #060c22; --navy2: #0e1a40; --navy3: #172a66;
+    --gold: #d9b45a; --gold2: #f3d27a; --gold-dim: rgba(217,180,90,.38);
+    --white: #f6f8ff; --muted: #a9b4d3;
+    --ice: #7cc4ff; --cancel: #ff5c7a; --late10: #7cc4ff; --late30: #f3d27a; --green: #4cd28a;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; min-height: 100%; color: var(--white);
+    font-family: -apple-system, "Hiragino Sans", "Noto Sans JP", sans-serif;
+    background:
+      radial-gradient(ellipse 70% 45% at 12% -5%, #24408f 0%, transparent 60%),
+      radial-gradient(ellipse 60% 40% at 95% 105%, #3a2378 0%, transparent 60%),
+      radial-gradient(ellipse 40% 30% at 70% 40%, rgba(124,196,255,.10) 0%, transparent 70%),
+      var(--navy); }
+  /* 星空 2層：奥（細かい・静止）と手前（大きめ・ゆっくり流れて瞬く） */
+  body::before, body::after { content: ""; position: fixed; inset: -10%; pointer-events: none; z-index: 0; }
+  body::before { opacity: .75;
+    background-image:
+      radial-gradient(1px 1px at 12% 18%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 28% 62%, #fff 50%, transparent 52%),
+      radial-gradient(1.5px 1.5px at 41% 9%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 55% 44%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 67% 78%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 78% 22%, #fff 50%, transparent 52%),
+      radial-gradient(1.5px 1.5px at 88% 58%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 8% 86%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 35% 35%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 62% 6%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 93% 88%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 48% 92%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 20% 48%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 74% 40%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 5% 30%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 52% 70%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 83% 8%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 30% 95%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 97% 35%, #fff 50%, transparent 52%),
+      radial-gradient(1px 1px at 15% 70%, #fff 50%, transparent 52%); }
+  body::after { opacity: .9; animation: drift 90s linear infinite, twinkle 4s ease-in-out infinite;
+    background-image:
+      radial-gradient(2.5px 2.5px at 18% 24%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 72% 14%, #f3d27a 40%, transparent 60%),
+      radial-gradient(2.5px 2.5px at 40% 76%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 86% 66%, #7cc4ff 40%, transparent 60%),
+      radial-gradient(3px 3px at 58% 50%, #fff 35%, transparent 60%),
+      radial-gradient(2px 2px at 10% 58%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 92% 30%, #fff 40%, transparent 60%),
+      radial-gradient(2.5px 2.5px at 30% 6%, #f3d27a 40%, transparent 60%),
+      radial-gradient(2px 2px at 66% 90%, #fff 40%, transparent 60%),
+      radial-gradient(2px 2px at 48% 32%, #7cc4ff 40%, transparent 60%); }
+  @keyframes drift { from { transform: translate3d(0,0,0); } to { transform: translate3d(-3%, 2%, 0); } }
+  @keyframes twinkle { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+  .brand { font-family: "Orbitron", -apple-system, sans-serif; font-weight: 800; letter-spacing: .14em;
+    color: var(--gold2); text-shadow: 0 0 18px rgba(243,210,122,.35); }
+  .brand .mark { color: var(--gold); margin-right: 6px; }
+  .rule { height: 1px; background: linear-gradient(90deg, transparent, var(--gold), transparent); opacity: .7; }
+
+  header { position: sticky; top: 0; z-index: 2; display: flex; align-items: center; gap: 12px; padding: 12px 18px;
+    background: rgba(6,12,34,.88); backdrop-filter: blur(8px); border-bottom: 1px solid var(--gold-dim); }
+  header h1 { margin: 0; flex: 1; font-size: 18px; display: flex; align-items: baseline; gap: 12px; }
+  header h1 .brand { font-size: 18px; }
+  header h1 .cls { font-family: "Orbitron", sans-serif; font-size: 12px; letter-spacing: .12em; color: var(--muted); }
+  .meta { color: var(--muted); font-size: 13px; }
+  .meta b { color: var(--gold2); font-size: 15px; }
+  .tog { background: rgba(14,26,64,.8); color: var(--muted); border: 1px solid var(--gold-dim);
+    border-radius: 10px; padding: 8px 12px; font-size: 14px; }
+  .tog.on { border-color: var(--gold2); color: var(--gold2); box-shadow: 0 0 0 3px rgba(243,210,122,.12), 0 0 18px rgba(243,210,122,.2); }
+  .warn { position: relative; z-index: 1; background: #4a2a10; color: #ffd27a; padding: 8px 18px; font-size: 14px; display: none;
+    border-bottom: 1px solid rgba(255,210,122,.3); }
+  main { position: relative; z-index: 1; padding: 14px 18px 40px; max-width: 960px; margin: 0 auto; }
+  .empty { text-align: center; color: var(--muted); padding: 64px 0; font-size: 18px; letter-spacing: .1em; }
+  .card { display: flex; align-items: center; gap: 18px; margin-bottom: 12px; padding: 14px 18px;
+    background: linear-gradient(135deg, rgba(28,48,118,.85), rgba(12,22,58,.95));
+    border: 1px solid var(--gold-dim); border-left: 10px solid var(--acc, var(--muted)); border-radius: 16px;
+    box-shadow: 0 16px 40px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.07), inset 10px 0 40px -20px var(--acc, transparent); }
+  .card.cancel { --acc: var(--cancel); }
+  .card.late10 { --acc: var(--late10); }
+  .card.late30 { --acc: var(--late30); }
+  .card.new { animation: flash 1s ease-in-out 3; }
+  @keyframes flash { 0%,100% { box-shadow: 0 16px 40px rgba(0,0,0,.45); } 50% { box-shadow: 0 0 0 4px rgba(243,210,122,.6), 0 0 40px rgba(243,210,122,.35); } }
+  .num { font-family: "Orbitron", -apple-system, sans-serif; font-size: 54px; font-weight: 800; line-height: 1; min-width: 130px; color: var(--white);
+    text-shadow: 0 0 22px rgba(124,196,255,.35); }
+  .num small { font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 16px; font-weight: 600; color: var(--muted); margin-left: 2px; text-shadow: none; }
+  .info { flex: 1; }
+  .st { font-size: 24px; font-weight: 800; color: var(--acc, var(--white)); }
+  .tm { color: var(--muted); font-size: 14px; margin-top: 4px; }
+  .ok { background: linear-gradient(135deg, #ff5c7a, #b8123a); color: #fff; border: 0; border-radius: 14px;
+    font-size: 20px; font-weight: 800; padding: 14px 20px; min-width: 134px; line-height: 1.15;
+    box-shadow: 0 10px 24px rgba(0,0,0,.35), inset 0 1px 0 rgba(255,255,255,.2); }
+  .ok small { display: block; font-size: 11px; font-weight: 500; opacity: .85; margin-top: 3px; }
+  .ok:active { opacity: .75; transform: translateY(1px); }
+  h2 { font-size: 12px; color: var(--gold); letter-spacing: .2em; margin: 30px 0 8px; font-weight: 700; }
+  .donecard { display: flex; align-items: center; gap: 12px; color: var(--muted); font-size: 15px;
+    padding: 10px 4px; border-bottom: 1px solid rgba(217,180,90,.18); }
+  .donecard b { color: var(--white); font-size: 18px; font-family: "Orbitron", -apple-system, sans-serif; }
+  .undo { margin-left: auto; background: none; color: var(--muted); border: 1px solid var(--gold-dim);
+    border-radius: 8px; padding: 6px 12px; font-size: 13px; }
+</style>
+</head>
+<body>
+<header>
+  <h1><span class="brand"><span class="mark">✦</span>YNTN TOURS</span><span class="cls">3-A.B</span><span class="meta">未対応 <b id="cnt">0</b></span></h1>
+  <span class="meta">更新 <span id="upd">--:--</span></span>
+  <button class="tog" id="snd">🔔 音 オフ</button>
+  <button class="tog" id="voice">🗣 読み上げ オフ</button>
+</header>
+<div class="warn" id="warn">通信できていません。電波を確認してください。</div>
+<main>
+  <div id="list"><div class="empty">まだ連絡はありません</div></div>
+  <h2>対応済み（直近）</h2>
+  <div id="doneList"></div>
+</main>
+
+<script>
+  // ▼ Apps Script の URL（「デプロイを管理」に出る exec のURL）。作り直したらここを差し替える
+  var API = 'https://script.google.com/macros/s/AKfycbyb-0i2ppm1QyaLaUFAIIGPyI8ZWk9TnDvsFM1D3L7wDPAoq3PUYTyq_gGTOEZyvDGFGQ/exec';
+  // ▼ MATENE の来場者ページ
+  var MATENE = 'https://matene.jp/apps/user/?event_id=Wyfc20E62l1tKWIRpZ4I';
+  function callApi(body) {
+    return fetch(API, { method: 'POST', body: JSON.stringify(body), credentials: 'omit', redirect: 'follow' })
+      .then(function (res) { return res.json(); });
+  }
+</script>
+<script>
+(function () {
+  var POLL_MS = 4000;
+  var KEY = ''; try { KEY = new URLSearchParams(location.search).get('key') || ''; } catch (e) {}
+  var KEYS = { 'キャンセル（30分以上）': 'cancel', '遅れます（10分以内）': 'late10', 'かなり遅れます（30分以内）': 'late30' };
+  var seen = null;              // 既に表示した id の集合（初回は null）
+  var soundOn = false, voiceOn = false, ctx = null, timer = null, inflight = false;
+
+  var list = document.getElementById('list');
+  var doneList = document.getElementById('doneList');
+  var cnt = document.getElementById('cnt');
+  var upd = document.getElementById('upd');
+  var warn = document.getElementById('warn');
+
+  // ---- 音（iPadは最初にタップで許可が要る） ----
+  document.getElementById('snd').addEventListener('click', function () {
+    soundOn = !soundOn;
+    this.textContent = soundOn ? '🔔 音 オン' : '🔔 音 オフ';
+    this.classList.toggle('on', soundOn);
+    if (soundOn) { ensureCtx(); beep(); }
+  });
+  document.getElementById('voice').addEventListener('click', function () {
+    voiceOn = !voiceOn;
+    this.textContent = voiceOn ? '🗣 読み上げ オン' : '🗣 読み上げ オフ';
+    this.classList.toggle('on', voiceOn);
+    if (voiceOn) say('読み上げをオンにしました');
+  });
+  function ensureCtx() {
+    if (!ctx) { var AC = window.AudioContext || window.webkitAudioContext; if (AC) ctx = new AC(); }
+    if (ctx && ctx.state === 'suspended') ctx.resume();
+  }
+  function beep() {
+    if (!soundOn || !ctx) return;
+    [0, 0.18, 0.36].forEach(function (t) {
+      var o = ctx.createOscillator(), g = ctx.createGain();
+      o.type = 'sine'; o.frequency.value = 880;
+      g.gain.setValueAtTime(0.0001, ctx.currentTime + t);
+      g.gain.exponentialRampToValueAtTime(0.5, ctx.currentTime + t + 0.02);
+      g.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + t + 0.15);
+      o.connect(g); g.connect(ctx.destination);
+      o.start(ctx.currentTime + t); o.stop(ctx.currentTime + t + 0.16);
+    });
+  }
+  function say(text) {
+    if (!voiceOn || !window.speechSynthesis) return;
+    var u = new SpeechSynthesisUtterance(text);
+    u.lang = 'ja-JP'; u.rate = 1.0;
+    speechSynthesis.speak(u);
+  }
+
+  // ---- 画面を消さない（対応している端末だけ。ダメなら設定で自動ロックを「なし」に） ----
+  document.addEventListener('click', function once() {
+    document.removeEventListener('click', once);
+    if (navigator.wakeLock && navigator.wakeLock.request) {
+      navigator.wakeLock.request('screen').catch(function () {});
+    }
+  });
+
+  // ---- 何かおかしいときは、黄色の帯に理由をそのまま出す ----
+  function showWarn(msg) {
+    warn.textContent = msg || '通信できていません。電波を確認してください。';
+    warn.style.display = 'block';
+  }
+  window.onerror = function (msg) { showWarn('画面のエラー: ' + msg); };
+
+  // ---- 取得と描画 ----
+  function poll() {
+    if (inflight) return;
+    inflight = true;
+    var watchdog = setTimeout(function () { inflight = false; showWarn('サーバーから応答がありません（10秒）'); }, 10000);
+    fetch(API + '?mode=json&key=' + encodeURIComponent(KEY) + '&t=' + Date.now(), { credentials: 'omit', cache: 'no-store', redirect: 'follow' })
+      .then(function (res) { return res.json(); })
+      .then(function (r) {
+        clearTimeout(watchdog); inflight = false;
+        if (!r) { showWarn('サーバーから空の応答が返りました'); return; }
+        if (r.error) { showWarn('取得に失敗: ' + r.error + '（URLの末尾に ?key=あいことば が要ります）'); return; }
+        warn.style.display = 'none'; render(r);
+      })
+      .catch(function (e) {
+        clearTimeout(watchdog); inflight = false;
+        showWarn('取得に失敗: ' + (e && e.message ? e.message : e));
+      });
+  }
+  function act(fn, id) {
+    callApi({ action: fn, id: id, key: KEY })
+      .then(function (r) { if (r && r.error) showWarn('更新に失敗: ' + r.error); else if (r) render(r); })
+      .catch(function (e) { showWarn('更新に失敗: ' + (e && e.message ? e.message : e)); });
+  }
+
+  var lastSig = '';
+  function render(r) {
+    upd.textContent = r.serverTime;
+    cnt.textContent = r.open.length;
+
+    // 並びが変わっていなければ、経過分だけ書き換えて終わる（タップ中の作り直しを避ける）
+    var sig = r.open.map(function (it) { return it.id; }).join(',') + '|' +
+              r.done.map(function (it) { return it.id; }).join(',');
+    if (sig === lastSig) {
+      var ages = list.querySelectorAll('.tm');
+      r.open.forEach(function (it, i) {
+        if (ages[i]) ages[i].textContent = '回答 ' + it.time + '（' + it.ageMin + '分前）';
+      });
+      return;
+    }
+    lastSig = sig;
+
+    var fresh = [];
+    if (seen !== null) {
+      r.open.forEach(function (it) { if (!seen[it.id]) fresh.push(it); });
+    }
+    seen = {};
+    r.open.forEach(function (it) { seen[it.id] = true; });
+    r.done.forEach(function (it) { seen[it.id] = true; });
+
+    list.innerHTML = '';
+    if (!r.open.length) {
+      list.innerHTML = '<div class="empty">未対応の連絡はありません</div>';
+    }
+    r.open.forEach(function (it) {
+      var k = KEYS[it.status] || '';
+      var d = document.createElement('div');
+      d.className = 'card ' + k + (fresh.some(function (f) { return f.id === it.id; }) ? ' new' : '');
+      d.innerHTML =
+        '<div class="num">' + it.number + '<small> 番</small></div>' +
+        '<div class="info"><div class="st">' + esc(it.status) + '</div>' +
+        '<div class="tm">回答 ' + it.time + '（' + it.ageMin + '分前）</div></div>' +
+        '<button class="ok">未対応<small>押すと対応済み</small></button>';
+      d.querySelector('.ok').addEventListener('click', function () {
+        this.disabled = true; act('markDone', it.id);
+      });
+      list.appendChild(d);
+    });
+
+    doneList.innerHTML = '';
+    r.done.forEach(function (it) {
+      var d = document.createElement('div');
+      d.className = 'donecard';
+      d.innerHTML = '<b>' + it.number + '番</b> ' + esc(it.status) + ' <span>回答 ' + it.time + '</span>' +
+        '<button class="undo">戻す</button>';
+      d.querySelector('.undo').addEventListener('click', function () {
+        this.disabled = true; act('markUndone', it.id);
+      });
+      doneList.appendChild(d);
+    });
+
+    if (fresh.length) {
+      beep();
+      say(fresh.map(function (f) { return f.number + '番、' + f.status; }).join('。'));
+    }
+  }
+  function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {
+    return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+
+  function start() {
+    poll();
+    timer = setInterval(poll, POLL_MS);
+  }
+  if (document.readyState === 'complete') start();
+  else window.addEventListener('load', start);
+})();
+</script>
+</body>
+</html>
