@@ -86,7 +86,7 @@
   .card.late30 { --acc: var(--late30); }
   .card.new { animation: flash 1s ease-in-out 3; }
   @keyframes flash { 0%,100% { box-shadow: 0 16px 40px rgba(0,0,0,.45); } 50% { box-shadow: 0 0 0 4px rgba(243,210,122,.6), 0 0 40px rgba(243,210,122,.35); } }
-  .num { font-family: "Orbitron", -apple-system, sans-serif; font-size: 54px; font-weight: 800; line-height: 1; min-width: 130px; color: var(--white);
+  .num { font-family: "Orbitron", -apple-system, sans-serif; font-size: 46px; font-weight: 800; line-height: 1; min-width: 150px; letter-spacing: .02em; white-space: nowrap; color: var(--white);
     text-shadow: 0 0 22px rgba(124,196,255,.35); }
   .num small { font-family: -apple-system, "Hiragino Sans", sans-serif; font-size: 16px; font-weight: 600; color: var(--muted); margin-left: 2px; text-shadow: none; }
   .info { flex: 1; }
@@ -301,7 +301,7 @@
 
     if (fresh.length) {
       beep();
-      say(fresh.map(function (f) { return f.number + '番、' + f.status; }).join('。'));
+      say(fresh.map(function (f) { return (f.spoken || f.number) + '番、' + f.status; }).join('。'));
     }
   }
   function esc(s) { return String(s).replace(/[&<>"]/g, function (c) {

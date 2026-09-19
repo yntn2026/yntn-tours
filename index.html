@@ -83,6 +83,11 @@
     -moz-appearance: textfield; font-family: "Orbitron", -apple-system, sans-serif; letter-spacing: .08em;
     box-shadow: inset 0 0 24px rgba(124,196,255,.06);
   }
+  .tk { display: flex; align-items: center; gap: 10px; }
+  .tkbox { flex: 1; position: relative; }
+  .tklab { position: absolute; right: 12px; bottom: 10px; font-size: 12px; color: var(--muted); letter-spacing: .08em; pointer-events: none; }
+  .tksep { font-family: "Orbitron", sans-serif; font-size: 34px; font-weight: 800; color: var(--gold2); line-height: 1; }
+  .hint b { color: var(--gold2); font-weight: 700; }
   input::placeholder { color: rgba(169,180,211,.4); font-family: -apple-system, "Hiragino Sans", sans-serif; font-weight: 600; letter-spacing: 0; }
   input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; }
   input:focus { border-color: var(--gold2); box-shadow: 0 0 0 4px rgba(243,210,122,.15), inset 0 0 24px rgba(124,196,255,.06); }
@@ -132,9 +137,12 @@
   <div class="card" id="form">
     <div class="tag">BOARDING</div>
     <label for="num">あなたの搭乗番号</label>
-    <input id="num" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="2000"
-           placeholder="例：15" value="">
-    <div class="hint">整理券（搭乗券）に書いてある数字です</div>
+    <div class="tk">
+      <div class="tkbox"><input id="grp" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="999" placeholder="11"><span class="tklab">便</span></div>
+      <div class="tksep">-</div>
+      <div class="tkbox"><input id="seat" type="number" inputmode="numeric" pattern="[0-9]*" min="1" max="8" placeholder="2"><span class="tklab">席</span></div>
+    </div>
+    <div class="hint">整理券（搭乗券）に書いてある数字です。<b>例：「11-2」なら、左に 11、右に 2</b></div>
     <div class="lead">状況を選んでください</div>
 
     <button class="btn late10" data-key="late10"><span class="ic">⏱</span><span class="tx"><b>遅れます（10分以内）</b><small>すぐ向かいます</small></span><span class="chev">›</span></button>
@@ -175,9 +183,12 @@
   var sending = document.getElementById('sending');
   var done = document.getElementById('done');
   var err = document.getElementById('err');
-  var num = document.getElementById('num');
+  var grp = document.getElementById('grp');
+  var seat = document.getElementById('seat');
+  var PREFILL = ''; try { PREFILL = new URLSearchParams(location.search).get('n') || ''; } catch (e) {}
+  (function () { var m = /^(\d{1,3})-([1-8])$/.exec(PREFILL); if (m) { grp.value = m[1]; seat.value = m[2]; } })();
+  grp.addEventListener('input', function () { if (grp.value.length >= 3) seat.focus(); });
   var buttons = form.querySelectorAll('.btn');
-  try { var qn = new URLSearchParams(location.search).get('n'); if (qn && /^\d{1,4}$/.test(qn)) num.value = qn; } catch (e) {}
 
   function show(el) {
     [form, sending, done].forEach(function (x) { x.style.display = 'none'; });
@@ -193,20 +204,23 @@
   buttons.forEach(function (b) {
     b.addEventListener('click', function () {
       err.style.display = 'none';
-      var n = parseInt(num.value, 10);
-      if (!(n >= 1 && n <= 2000)) {
-        err.textContent = '整理券の番号を入れてください';
-        err.style.display = 'block';
-        num.focus();
-        return;
+      var g = parseInt(grp.value, 10), s = parseInt(seat.value, 10);
+      if (!(g >= 1 && g <= 999)) {
+        err.textContent = '左の箱に、ハイフンの前の数字（便）を入れてください';
+        err.style.display = 'block'; grp.focus(); return;
       }
+      if (!(s >= 1 && s <= 8)) {
+        err.textContent = '右の箱に、ハイフンの後ろの数字（席・1〜8）を入れてください';
+        err.style.display = 'block'; seat.focus(); return;
+      }
+      var ticket = g + '-' + s;
       setBusy(true); show(sending);
-      callApi({ action: 'submit', number: n, status: b.getAttribute('data-key') }, 40000)
+      callApi({ action: 'submit', number: ticket, status: b.getAttribute('data-key') }, 40000)
         .then(function (r) {
           if (!r || r.error) { fail({ message: r && r.error }); return; }
           document.getElementById('doneNum').textContent = r.number + ' 番';
           document.getElementById('doneStatus').textContent = r.status;
-          document.getElementById('matene').href = MATENE + '&number=' + r.number;
+          document.getElementById('matene').href = MATENE + '&number=' + r.group;
           show(done);
         })
         .catch(function () { fail(null); });
